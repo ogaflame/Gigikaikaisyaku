@@ -1,1 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>疑義解釈資料 横断検索 | 令和８年度診療報酬改定</title>
+<style>
+  :root{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --sidebar:#151b26;
+    --sidebar-2:#1e2733;
+    --ink:#1a1f2b;
+    --ink-soft:#5a6270;
+    --line:#e3e6eb;
+    --accent:#2f6fed;
+    --accent-soft:#eaf1fe;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    line-height:1.6;
+    font-size:14px;
+  }
+  .layout{display:flex;min-height:100vh;}
+  .sidebar{
+    width:240px;flex-shrink:0;
+    background:var(--sidebar);
+    color:#c7cedb;
+    padding:1.4rem 1rem;
+  }
+  .sidebar .brand{
+    color:#fff;font-size:.92rem;font-weight:700;margin:0 0 .2rem;
+  }
+  .sidebar .brand-sub{
+    font-size:.68rem;color:#8b93a3;margin:0 0 1.6rem;
+  }
+  .side-section{margin-bottom:1.5rem;}
+  .side-section .h{
+    font-size:.66rem;letter-spacing:.08em;color:#7b8394;
+    margin:0 0 .5rem;text-transform:uppercase;
+  }
+  .side-item{
+    display:flex;justify-content:space-between;
+    padding:.4rem .55rem;
+    border-radius:6px;
+    font-size:.8rem;
+    cursor:pointer;
+    color:#c7cedb;
+  }
+  .side-item:hover{background:var(--sidebar-2);}
+  .side-item.active{background:var(--accent);color:#fff;}
+  .side-item .n{color:#8b93a3;font-size:.72rem;}
+  .side-item.active .n{color:#dce6ff;}
+  .content{flex:1;padding:1.6rem 2.2rem 3rem;max-width:900px;}
+  .topbar{
+    display:flex;align-items:center;gap:.7rem;margin-bottom:1rem;
+  }
+  .topbar input{
+    flex:1;
+    padding:.6rem .9rem;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:.9rem;
+    background:#fff;
+    font-family:inherit;
+  }
+  .topbar input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .stats{
+    display:flex;gap:.8rem;margin-bottom:1.2rem;
+  }
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.6rem .9rem;
+    font-size:.78rem;
+    color:var(--ink-soft);
+  }
+  .stat b{color:var(--ink);font-size:1rem;display:block;}
+  table.results-table{
+    width:100%;border-collapse:collapse;background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .row{
+    border-bottom:1px solid var(--line);
+    padding:.9rem 1rem;
+    display:block;
+  }
+  .row:last-child{border-bottom:none;}
+  .row-head{
+    display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;
+  }
+  .badge{
+    font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:5px;
+  }
+  .badge.sono{background:#eef0f4;color:#454d5c;}
+  .badge.cat{background:var(--accent-soft);color:#1d4fb0;}
+  .row-head .topic{font-size:.75rem;color:var(--ink-soft);}
+  .q{font-weight:700;margin:.2rem 0 .35rem;}
+  .a{margin:0;color:var(--ink-soft);}
+  .a b{color:var(--ink);font-weight:400;}
+  .src{
+    display:inline-block;margin-top:.5rem;font-size:.72rem;color:var(--accent);
+    text-decoration:none;
+  }
+  mark{background:#ffe08a;padding:0 .1em;border-radius:2px;}
+  .empty{padding:3rem;text-align:center;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar">
+    <p class="brand">疑義解釈 DB</p>
+    <p class="brand-sub">令和８年度診療報酬改定</p>
+    <div class="side-section">
+      <p class="h">号数</p>
+      <div id="sonoList"></div>
+    </div>
+    <div class="side-section">
+      <p class="h">区分</p>
+      <div id="catList"></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="topbar">
+      <input type="text" id="q" placeholder="問・答・見出しをキーワード検索">
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="statCount">-</b>ヒット件数</div>
+      <div class="stat"><b id="statTotal">-</b>収録件数(全号)</div>
+    </div>
+    <div class="results-table" id="results"></div>
+    <p style="margin-top:1.5rem;font-size:.72rem;color:var(--ink-soft);">
+      データ出典: 厚生労働省「令和８年度診療報酬改定について」掲載の疑義解釈資料(事務連絡)。
+      本サイトは非公式の検索補助ツールです。正確な原文は必ず一次資料(厚労省PDF)を確認してください。
+    </p>
+  </div>
+</div>
+
+<script>
+let ALL=[], activeSono=null, activeCat=null;
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function hl(text,terms){
+  let t=esc(text);
+  terms.forEach(term=>{
+    if(!term) return;
+    const re=new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+    t=t.replace(re,m=>`<mark>${m}</mark>`);
+  });
+  return t;
+}
+function render(){
+  const qv=document.getElementById('q').value.trim();
+  const terms=qv.split(/\s+/).filter(Boolean);
+  const filtered=ALL.filter(r=>{
+    if(activeSono!==null&&r.sono!==activeSono) return false;
+    if(activeCat!==null&&r.category!==activeCat) return false;
+    if(!terms.length) return true;
+    const hay=(r.topic||'')+' '+r.question+' '+r.answer;
+    return terms.every(t=>hay.toLowerCase().includes(t.toLowerCase()));
+  });
+  document.getElementById('statCount').textContent=filtered.length;
+  document.getElementById('statTotal').textContent=ALL.length;
+  const c=document.getElementById('results');
+  if(!filtered.length){c.innerHTML='<div class="empty">条件に一致するデータがありません。</div>';return;}
+  c.innerHTML=filtered.map(r=>`
+    <div class="row">
+      <div class="row-head">
+        <span class="badge sono">その${r.sono}</span>
+        <span class="badge cat">${esc(r.category)}</span>
+        <span class="topic">${r.topic?'【'+esc(r.topic)+'】':''}</span>
+      </div>
+      <p class="q">問${r.question_no}. ${hl(r.question,terms)}</p>
+      <p class="a"><b>答</b> ${hl(r.answer,terms)}</p>
+      ${r.source_url?`<a class="src" href="${r.source_url}" target="_blank">原文PDFを開く ↗</a>`:''}
+    </div>
+  `).join('');
+}
+function buildFacets(){
+  const sonos=[...new Set(ALL.map(r=>r.sono))].sort();
+  const cats=[...new Set(ALL.map(r=>r.category))];
+  const sl=document.getElementById('sonoList');
+  const allItem=document.createElement('div');
+  allItem.className='side-item active';
+  allItem.innerHTML=`<span>すべて</span><span class="n">${ALL.length}</span>`;
+  allItem.onclick=()=>{activeSono=null;[...sl.children].forEach(x=>x.classList.remove('active'));allItem.classList.add('active');render();};
+  sl.appendChild(allItem);
+  sonos.forEach(v=>{
+    const cnt=ALL.filter(r=>r.sono===v).length;
+    const it=document.createElement('div');it.className='side-item';
+    it.innerHTML=`<span>その${v}</span><span class="n">${cnt}</span>`;
+    it.onclick=()=>{activeSono=v;[...sl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
+    sl.appendChild(it);
+  });
+  const cl=document.getElementById('catList');
+  const allCat=document.createElement('div');
+  allCat.className='side-item active';allCat.innerHTML=`<span>すべて</span><span class="n"></span>`;
+  allCat.onclick=()=>{activeCat=null;[...cl.children].forEach(x=>x.classList.remove('active'));allCat.classList.add('active');render();};
+  cl.appendChild(allCat);
+  cats.forEach(v=>{
+    const cnt=ALL.filter(r=>r.category===v).length;
+    const it=document.createElement('div');it.className='side-item';
+    it.innerHTML=`<span>${v}</span><span class="n">${cnt}</span>`;
+    it.onclick=()=>{activeCat=v;[...cl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
+    cl.appendChild(it);
+  });
+}
+fetch('qa.json').then(r=>r.json()).then(d=>{ALL=d;buildFacets();render();});
+document.getElementById('q').addEventListener('input',render);
+</script>
+</body>
+</html>
 
