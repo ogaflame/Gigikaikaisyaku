@@ -1,1 +1,53 @@
+name: Update Gikai Kaishaku Data
 
+on:
+  schedule:
+    # 毎日 09:00 JST (00:00 UTC) に実行。頻度は運用に合わせて調整可。
+    - cron: "0 0 * * *"
+  workflow_dispatch: {}   # 手動実行ボタンも使えるようにする
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline (fetch new PDFs & rebuild qa.json)
+        run: python scripts/run_pipeline.py
+
+      - name: Commit updated data if changed
+        run: |
+          git config user.name "gikai-bot"
+          git config user.email "gikai-bot@users.noreply.github.com"
+          git add data/ site/qa.json
+          git diff --cached --quiet || git commit -m "chore: auto-update 疑義解釈資料データ"
+          git push
+
+  deploy-pages:
+    needs: update-data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
