@@ -2,23 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 疑義解釈資料の送付について（その N）テキスト -> 構造化Q&A JSON パーサー
-
-前提:
-- 入力テキストは PDF からのテキスト抽出結果(pdfplumber 等)を想定
-- 「医－1」「歯－1」「調－1」「訪看－1」「看ベ－1」「DPC－1」のような
-  ページ見出し(区分ラベル)の直後に区分名(例:歯科診療報酬点数表関係)が続く
-- 各区分内は【見出し】で話題が区切られ、「問N」→「（答）」の順で連続する
-
-完全ではないが、実運用データの大部分を高い精度で構造化できることを狙った
-ヒューリスティックパーサー。抽出漏れがあれば raw_text をそのまま
-full_text_fallback として保持し、あとから調整できるようにしている。
 """
 import re
 import json
 import sys
 from pathlib import Path
 
-# 区分ラベルとその後に続く正式名称(表記ゆれに対応するため正規化用マップ)
 CATEGORY_HEADERS = {
     "医科診療報酬点数表関係": "医科",
     "医科診療報酬点数表関係（ＤＰＣ）": "DPC",
@@ -28,7 +17,6 @@ CATEGORY_HEADERS = {
     "訪問看護療養費関係": "訪問看護",
 }
 
-# ページ番号/区分ラベル行のノイズ除去用パターン (例: 医－12, 看ベ－3, DPC－10, （別添３）)
 NOISE_LINE_RE = re.compile(
     r"^(?:医|歯|調|訪看|看ベ|ＤＰＣ|DPC)[－\-]\d+$|^（別添\d+）$"
 )
@@ -38,10 +26,18 @@ CATEGORY_HEADER_RE = re.compile(
 )
 
 TOPIC_RE = re.compile(r"^【(.+?)】$")
-
-# 「問１」「問 1」「問１－１」(DPC形式) 等に対応
 QUESTION_RE = re.compile(r"^問\s*([0-9０-９]+(?:[－\-][0-9０-９]+)?)\s*(.*)$")
 ANSWER_MARK_RE = re.compile(r"^（答）\s*(.*)$")
+
+ZEN_TO_HAN = str.maketrans("０１２３４５６７８９", "0123456789")
+
+
+def main_number(qnum: str):
+    head = qnum.translate(ZEN_TO_HAN).replace("－", "-").split("-")[0]
+    try:
+        return int(head)
+    except ValueError:
+        return None
 
 
 def normalize_lines(text: str):
@@ -57,7 +53,6 @@ def normalize_lines(text: str):
 
 
 def extract_header_info(text: str):
-    """号数・事務連絡日付を先頭部分から抽出する"""
     sono_match = re.search(r"疑義解釈資料の送付について（その\s*([0-9０-９]+)\s*）", text)
     date_match = re.search(r"令\s*和\s*([0-9０-９]+)\s*年\s*([0-9０-９]+)\s*月\s*([0-9０-９]+)\s*日", text)
     sono_no = sono_match.group(1) if sono_match else None
@@ -78,7 +73,8 @@ def parse(text: str, source_url: str = ""):
     current_qnum = None
     current_question_lines = []
     current_answer_lines = []
-    mode = None  # 'question' | 'answer'
+    mode = None
+    last_main_num = None
 
     def flush():
         nonlocal current_qnum, current_question_lines, current_answer_lines
@@ -103,6 +99,7 @@ def parse(text: str, source_url: str = ""):
             current_category = CATEGORY_HEADERS.get(line, line)
             current_topic = None
             mode = None
+            last_main_num = None
             continue
 
         topic_m = TOPIC_RE.match(line)
@@ -114,12 +111,21 @@ def parse(text: str, source_url: str = ""):
 
         q_m = QUESTION_RE.match(line)
         if q_m:
-            flush()
-            current_qnum = q_m.group(1)
-            rest = q_m.group(2)
-            current_question_lines = [rest] if rest else []
-            mode = "question"
-            continue
+            candidate_num = main_number(q_m.group(1))
+            is_backwards = (
+                candidate_num is not None
+                and last_main_num is not None
+                and candidate_num < last_main_num
+            )
+            if not is_backwards:
+                flush()
+                current_qnum = q_m.group(1)
+                rest = q_m.group(2)
+                current_question_lines = [rest] if rest else []
+                mode = "question"
+                if candidate_num is not None:
+                    last_main_num = candidate_num
+                continue
 
         a_m = ANSWER_MARK_RE.match(line)
         if a_m:
@@ -132,7 +138,6 @@ def parse(text: str, source_url: str = ""):
             current_question_lines.append(line)
         elif mode == "answer":
             current_answer_lines.append(line)
-        # ヘッダ部(冒頭挨拶等)は無視
 
     flush()
     return records
