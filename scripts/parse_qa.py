@@ -52,15 +52,22 @@ def normalize_lines(text: str):
     return lines
 
 
-def extract_header_info(text: str):
-    sono_match = re.search(r"疑義解釈資料の送付について（その\s*([0-9０-９]+)\s*）", text)
-    date_match = re.search(r"令\s*和\s*([0-9０-９]+)\s*年\s*([0-9０-９]+)\s*月\s*([0-9０-９]+)\s*日", text)
-    sono_no = sono_match.group(1) if sono_match else None
-    date_str = None
-    if date_match:
-        y, m, d = date_match.groups()
-        date_str = f"令和{y}年{m}月{d}日"
-    return sono_no, date_str
+def extract_pdf_text(pdf_bytes: bytes) -> str:
+    """
+    PDFからテキストを抽出する。各ページの直前に "__PAGE__N__" という
+    目印行を挿入しておくことで、parse_qa.py 側でどの問がPDFの何ページ目に
+    あったかを追跡できるようにする(検索サイトから原文の該当ページへ
+    直接リンクするために使用)。
+    """
+    import pdfplumber
+    import io
+
+    text_parts = []
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        for i, page in enumerate(pdf.pages, start=1):
+            text_parts.append(f"__PAGE__{i}__")
+            text_parts.append(page.extract_text() or "")
+    return "\n".join(text_parts)
 
 
 def parse(text: str, source_url: str = ""):
