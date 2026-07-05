@@ -2,17 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 自動更新パイプライン本体。GitHub Actions から定期実行される想定。
-
-流れ:
-1. scrape_list.fetch_links() で最新のPDFリンク一覧を取得
-2. 直前にコミットされている data/links.json と比較し、新規/変更されたURLを抽出
-3. 新規/変更分のPDFをダウンロードし、pdfplumber でテキスト抽出
-4. parse_qa.parse() で構造化
-5. 号(sono)ごとに data/manifest/sonoN.json として保存
-6. すべてのmanifestを合算して site/qa.json を再生成
-7. data/links.json を最新の内容で更新
-
-このスクリプトはネットワークアクセスを必要とする(GitHub Actions実行環境で行う)。
 """
 import json
 import sys
@@ -83,18 +72,26 @@ def main():
         records = parse(text, source_url=url)
         manifest_path = MANIFEST_DIR / f"sono{item['sono']}.json"
 
-        # 同じ号のPDFが複数(訂正等)ある場合は上書きではなくマージすることも検討可能。
-        # ここでは単純化のため、同号の既存分がなければ新規保存、あれば追記する。
+        # 同じ号のPDFが複数(訂正等)ある場合、(区分, 問番号)が同じレコードは
+        # 「後から処理した方(=訂正版であることが多い)」で上書きする。
         existing = []
         if manifest_path.exists():
             existing = json.loads(manifest_path.read_text(encoding="utf-8"))
-        merged = existing + records
+
+        by_key = {}
+        for rec in existing:
+            key = (rec.get("category"), rec.get("question_no"))
+            by_key[key] = rec
+        for rec in records:
+            key = (rec.get("category"), rec.get("question_no"))
+            by_key[key] = rec
+
+        merged = list(by_key.values())
         manifest_path.write_text(
             json.dumps(merged, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-        print(f"  -> {len(records)} 件のQ&Aを {manifest_path} に保存しました。")
+        print(f"  -> {len(records)} 件を処理し、{manifest_path} は合計 {len(merged)} 件になりました。")
 
-    # 全体のqa.jsonを再構築
     all_records = []
     for manifest_file in sorted(MANIFEST_DIR.glob("sono*.json")):
         all_records.extend(json.loads(manifest_file.read_text(encoding="utf-8")))
@@ -105,7 +102,6 @@ def main():
     )
     print(f"合計 {len(all_records)} 件のQ&Aを {SITE_QA_PATH} に書き出しました。")
 
-    # links.json を更新
     LINKS_PATH.write_text(json.dumps(current, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
