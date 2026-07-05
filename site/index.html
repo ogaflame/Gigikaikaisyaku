@@ -174,7 +174,7 @@ function render(){
       </div>
       <p class="q">問${r.question_no}. ${hl(r.question,terms)}</p>
       <p class="a"><b>答</b> ${hl(r.answer,terms)}</p>
-      ${r.source_url?`<a class="src" href="${r.source_url}" target="_blank">原文PDFを開く ↗</a>`:''}
+      ${r.source_url?`<a class="src" href="${r.source_url}${r.page?('#page='+r.page):''}" target="_blank">原文PDFを開く ↗</a>`:''}
     </div>
   `).join('');
 }
@@ -212,4 +212,3 @@ document.getElementById('q').addEventListener('input',render);
 </script>
 </body>
 </html>
-
