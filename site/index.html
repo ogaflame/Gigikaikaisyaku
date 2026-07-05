@@ -67,6 +67,23 @@
     font-family:inherit;
   }
   .topbar input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  .disclaimer{
+    display:flex;
+    gap:.6rem;
+    align-items:flex-start;
+    background:#fff6e5;
+    border:1px solid #f0d999;
+    color:#6b5410;
+    border-radius:8px;
+    padding:.7rem .9rem;
+    font-size:.78rem;
+    line-height:1.6;
+    margin-bottom:1rem;
+  }
+  .disclaimer .mark{
+    font-weight:700;
+    flex-shrink:0;
+  }
   .stats{
     display:flex;gap:.8rem;margin-bottom:1.2rem;
   }
@@ -124,6 +141,10 @@
     </div>
   </div>
   <div class="content">
+    <div class="disclaimer">
+      <span class="mark">⚠ ご利用にあたって</span>
+      <span>本サイトは社内の検索補助を目的とした非公式ツールです。厚生労働省の公式発表ではありません。内容は自動処理により抽出・分割しているため、誤りや抽出漏れが含まれる可能性があります。算定・請求など実務上の判断は、必ず「原文PDFを開く」リンクから一次資料(厚労省の事務連絡)をご確認のうえ行ってください。</span>
+    </div>
     <div class="topbar">
       <input type="text" id="q" placeholder="問・答・見出しをキーワード検索">
     </div>
