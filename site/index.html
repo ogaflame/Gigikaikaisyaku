@@ -124,15 +124,90 @@
   }
   mark{background:#ffe08a;padding:0 .1em;border-radius:2px;}
   .empty{padding:3rem;text-align:center;color:var(--ink-soft);}
+
+  /* ========== スマートフォン向けレイアウト ========== */
+  @media (max-width: 768px){
+    body{font-size:15px;}
+
+    .layout{flex-direction:column;min-height:auto;}
+
+    /* サイドバーを上部の横スクロールバーに変える */
+    .sidebar{
+      width:100%;
+      padding:1rem .9rem;
+      position:sticky;
+      top:0;
+      z-index:10;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+    }
+    .sidebar .brand-sub{margin-bottom:.9rem;}
+    .side-section{margin-bottom:.9rem;}
+    .side-section .h{margin-bottom:.4rem;}
+
+    /* 号数・区分のリストを縦積みから横スクロールのチップ列に */
+    .side-section > div{
+      display:flex;
+      gap:.4rem;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom:.15rem;
+    }
+    .side-item{
+      flex-shrink:0;
+      display:flex;
+      gap:.3rem;
+      white-space:nowrap;
+      padding:.45rem .75rem;
+      border:1px solid #2b3648;
+    }
+    .side-item .n{
+      background:rgba(255,255,255,.12);
+      padding:0 .35rem;
+      border-radius:999px;
+    }
+
+    .content{
+      padding:1rem .9rem 2.5rem;
+      max-width:100%;
+    }
+
+    .disclaimer{
+      font-size:.72rem;
+      padding:.6rem .7rem;
+      flex-direction:column;
+      gap:.2rem;
+    }
+
+    .topbar input{
+      font-size:16px; /* iOSでの自動ズームを防ぐ */
+      padding:.7rem .85rem;
+    }
+
+    .stats{gap:.5rem;}
+    .stat{padding:.5rem .7rem;font-size:.72rem;flex:1;}
+    .stat b{font-size:.95rem;}
+
+    .row{padding:.8rem .9rem;}
+    .row-head{gap:.35rem;}
+    .badge{font-size:.66rem;padding:.12rem .4rem;}
+    .row-head .topic{
+      width:100%;
+      margin-top:.1rem;
+      font-size:.72rem;
+    }
+    .q{font-size:.92rem;line-height:1.5;}
+    .a{font-size:.88rem;}
+    .src{font-size:.75rem;padding:.2rem 0;}
+  }
 </style>
 </head>
 <body>
 <div class="layout">
   <div class="sidebar">
-    <p class="brand">疑義解釈 DB</p>
+    <p class="brand">疑義解釈資料データベース</p>
     <p class="brand-sub">令和８年度診療報酬改定</p>
     <div class="side-section">
-      <p class="h">号数</p>
+      <p class="h">疑義解釈資料の送付について</p>
       <div id="sonoList"></div>
     </div>
     <div class="side-section">
