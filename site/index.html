@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>案E: シンプルミニマル | 疑義解釈資料データベース</title>
+<title>疑義解釈資料データベース | 令和８年度診療報酬改定</title>
 <style>
   :root{
     --bg:#ffffff;
+    --sidebar-bg:#fafafa;
     --ink:#1c1c1e;
     --ink-soft:#767680;
     --line:#ececec;
@@ -15,10 +16,10 @@
     --green:#1f9e6b;
     --green-soft:#eafaf3;
     --notice-mark:#fff1a6;
-    --card-bg:transparent;
   }
   html[data-theme="dark"]{
     --bg:#121214;
+    --sidebar-bg:#18181b;
     --ink:#eceef0;
     --ink-soft:#9a9aa2;
     --line:#2b2b30;
@@ -27,11 +28,11 @@
     --green:#4fd39a;
     --green-soft:#1b3a2d;
     --notice-mark:#5c4e14;
-    --card-bg:transparent;
   }
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
       --bg:#121214;
+      --sidebar-bg:#18181b;
       --ink:#eceef0;
       --ink-soft:#9a9aa2;
       --line:#2b2b30;
@@ -50,62 +51,80 @@
     line-height:1.65;
     transition:background .15s ease,color .15s ease;
   }
-  .wrap{max-width:720px;margin:0 auto;padding:3rem 1.4rem 5rem;}
-  .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;}
-  .eyebrow{font-size:.72rem;color:var(--ink-soft);letter-spacing:.08em;margin:0 0 .5rem;}
-  h1{font-size:1.6rem;font-weight:600;margin:0 0 1.6rem;letter-spacing:-.01em;}
+  .layout{display:flex;min-height:100vh;}
+
+  /* ===== サイドバー ===== */
+  .sidebar{
+    width:230px;flex-shrink:0;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--line);
+    padding:1.6rem 1.2rem;
+  }
+  .sidebar .brand{font-size:.95rem;font-weight:700;margin:0 0 .15rem;}
+  .sidebar .brand-sub{font-size:.7rem;color:var(--ink-soft);margin:0 0 1.5rem;}
   .theme-toggle{
-    flex-shrink:0;
+    width:100%;
     font-size:.72rem;font-weight:600;
     color:var(--ink-soft);
     background:transparent;
     border:1px solid var(--line);
-    border-radius:999px;
-    padding:.4rem .9rem;
+    border-radius:8px;
+    padding:.5rem .7rem;
     cursor:pointer;
     font-family:inherit;
+    margin-bottom:1.6rem;
   }
   .theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .side-section{margin-bottom:1.4rem;}
+  .side-section .label{
+    font-size:.66rem;color:var(--ink-soft);letter-spacing:.06em;
+    margin:0 0 .6rem;font-weight:700;
+  }
+  .side-list{display:flex;flex-direction:column;gap:.15rem;}
+  .side-item{
+    font-size:.82rem;
+    padding:.4rem .55rem;
+    border-radius:7px;
+    cursor:pointer;
+    color:var(--ink-soft);
+    display:flex;justify-content:space-between;
+  }
+  .side-item:hover{background:var(--line);}
+  .side-item.active{background:var(--accent);color:#fff;}
+  .side-item .n{font-size:.7rem;color:var(--ink-soft);}
+  .side-item.active .n{color:#e4e6ff;}
+
+  /* ===== メイン ===== */
+  .content{flex:1;padding:2.2rem 2.4rem 4rem;max-width:760px;}
   .notice{
     font-size:.76rem;color:var(--ink-soft);
     border-left:2px solid var(--line);
     padding-left:.9rem;
-    margin-bottom:2rem;
+    margin-bottom:1.8rem;
     line-height:1.7;
   }
-  .search-wrap{position:relative;margin-bottom:1.2rem;}
+  .search-wrap{position:relative;margin-bottom:1.4rem;}
   .search-wrap input[type=text]{
     width:100%;
     border:none;
     border-bottom:2px solid var(--ink);
     padding:.7rem 0;
-    font-size:1.15rem;
+    font-size:1.1rem;
     font-family:inherit;
     background:transparent;
+    color:var(--ink);
   }
   .search-wrap input[type=text]:focus{outline:none;border-color:var(--accent);}
-  .search-wrap input[type=text]::placeholder{color:#c6c6cc;}
-  .filters{display:flex;gap:1.8rem;margin:1.3rem 0 1.6rem;flex-wrap:wrap;}
-  .filter-col .label{font-size:.68rem;color:var(--ink-soft);letter-spacing:.06em;margin:0 0 .5rem;}
-  .filter-col .opts{display:flex;flex-wrap:wrap;gap:.3rem;}
-  .opt{
-    font-size:.78rem;
-    padding:.25rem .1rem;
-    color:var(--ink-soft);
-    cursor:pointer;
-    border-bottom:2px solid transparent;
-  }
-  .opt + .opt{margin-left:.6rem;}
-  .opt.active{color:var(--accent);border-color:var(--accent);font-weight:600;}
-  .status{font-size:.74rem;color:var(--ink-soft);margin-bottom:1.6rem;padding-bottom:.8rem;border-bottom:1px solid var(--line);}
-  .entry{padding:1.4rem 0;border-bottom:1px solid var(--line);}
-  .entry .meta{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;}
+  .search-wrap input[type=text]::placeholder{color:var(--ink-soft);opacity:.6;}
+  .status{font-size:.74rem;color:var(--ink-soft);margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid var(--line);}
+  .entry{padding:1.3rem 0;border-bottom:1px solid var(--line);}
+  .entry .meta{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;}
   .chip{font-size:.68rem;font-weight:600;padding:.12rem .5rem;border-radius:5px;}
   .chip.sono{background:var(--accent-soft);color:var(--accent);}
   .chip.cat{background:var(--green-soft);color:var(--green);}
   .entry .topic{font-size:.76rem;color:var(--ink-soft);}
   .entry .q{font-size:.98rem;font-weight:600;margin:0 0 .5rem;}
-  .entry .a{font-size:.92rem;color:#3a3a3e;margin:0;}
+  .entry .a{font-size:.92rem;color:var(--ink);margin:0;}
   .entry .a::before{content:"— ";color:var(--ink-soft);}
   .entry a.src{
     display:inline-block;margin-top:.6rem;font-size:.76rem;color:var(--accent);text-decoration:none;
@@ -113,39 +132,65 @@
   .entry a.src:hover{text-decoration:underline;}
   mark{background:var(--notice-mark);color:var(--ink);padding:0 .1em;}
   .empty{padding:4rem 0;text-align:center;color:var(--ink-soft);}
+
+  /* ===== スマートフォン向け ===== */
+  @media (max-width: 768px){
+    body{font-size:15px;}
+    .layout{flex-direction:column;min-height:auto;}
+    .sidebar{
+      width:100%;
+      position:sticky;top:0;z-index:10;
+      padding:.9rem .9rem;
+      box-shadow:0 1px 0 var(--line);
+    }
+    .sidebar .brand-sub{margin-bottom:.8rem;}
+    .theme-toggle{width:auto;margin-bottom:.8rem;}
+    .side-section{margin-bottom:.7rem;}
+    .side-list{
+      flex-direction:row;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      gap:.4rem;
+      padding-bottom:.1rem;
+    }
+    .side-item{
+      flex-shrink:0;white-space:nowrap;
+      border:1px solid var(--line);
+    }
+    .content{padding:1.1rem .9rem 2.5rem;max-width:100%;}
+    .search-wrap input[type=text]{font-size:16px;}
+    .notice{font-size:.72rem;}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top-row">
-    <div>
-      <p class="eyebrow">令和８年度診療報酬改定</p>
-      <h1>疑義解釈資料データベース</h1>
-    </div>
+<div class="layout">
+  <div class="sidebar">
+    <p class="brand">疑義解釈資料データベース</p>
+    <p class="brand-sub">令和８年度診療報酬改定</p>
     <button class="theme-toggle" id="themeToggle" type="button">ダークモード</button>
-  </div>
-
-  <p class="notice">
-    社内向けの非公式な検索補助ツールです。内容は自動処理により構造化しているため、誤りを含む可能性があります。実務上の判断は、必ずリンク先の原文PDFをご確認ください。
-  </p>
-
-  <div class="search-wrap">
-    <input type="text" id="q" placeholder="キーワードで検索">
-  </div>
-
-  <div class="filters">
-    <div class="filter-col">
+    <div class="side-section">
       <p class="label">疑義解釈資料の送付について</p>
-      <div class="opts" id="sonoOpts"></div>
+      <div class="side-list" id="sonoList"></div>
     </div>
-    <div class="filter-col">
+    <div class="side-section">
       <p class="label">区分</p>
-      <div class="opts" id="catOpts"></div>
+      <div class="side-list" id="catList"></div>
     </div>
   </div>
 
-  <p class="status" id="status"></p>
-  <div id="results"></div>
+  <div class="content">
+    <p class="notice">
+      社内向けの非公式な検索補助ツールです。内容は自動処理により構造化しているため、誤りを含む可能性があります。実務上の判断は、必ずリンク先の原文PDFをご確認ください。
+    </p>
+
+    <div class="search-wrap">
+      <input type="text" id="q" placeholder="キーワードで検索">
+    </div>
+
+    <p class="status" id="status"></p>
+    <div id="results"></div>
+  </div>
 </div>
 
 <script>
@@ -190,21 +235,33 @@ function render(){
 function buildFacets(){
   const sonos=[...new Set(ALL.map(r=>r.sono))].sort((a,b)=>parseInt(ZEN_TO_HAN(a),10)-parseInt(ZEN_TO_HAN(b),10));
   const cats=[...new Set(ALL.map(r=>r.category))];
-  const sw=document.getElementById('sonoOpts');
+
+  const sl=document.getElementById('sonoList');
+  const allSono=document.createElement('div');
+  allSono.className='side-item active';
+  allSono.innerHTML=`<span>すべて</span><span class="n">${ALL.length}</span>`;
+  allSono.onclick=()=>{activeSono=null;[...sl.children].forEach(x=>x.classList.remove('active'));allSono.classList.add('active');render();};
+  sl.appendChild(allSono);
   sonos.forEach(v=>{
-    const b=document.createElement('span');b.className='opt';b.textContent=`その${v}`;
-    b.onclick=()=>{activeSono=activeSono===v?null:v;
-      [...sw.children].forEach(x=>x.classList.remove('active'));
-      if(activeSono!==null)b.classList.add('active');render();};
-    sw.appendChild(b);
+    const cnt=ALL.filter(r=>r.sono===v).length;
+    const it=document.createElement('div');it.className='side-item';
+    it.innerHTML=`<span>その${v}</span><span class="n">${cnt}</span>`;
+    it.onclick=()=>{activeSono=v;[...sl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
+    sl.appendChild(it);
   });
-  const cw=document.getElementById('catOpts');
+
+  const cl=document.getElementById('catList');
+  const allCat=document.createElement('div');
+  allCat.className='side-item active';
+  allCat.innerHTML=`<span>すべて</span><span class="n"></span>`;
+  allCat.onclick=()=>{activeCat=null;[...cl.children].forEach(x=>x.classList.remove('active'));allCat.classList.add('active');render();};
+  cl.appendChild(allCat);
   cats.forEach(v=>{
-    const b=document.createElement('span');b.className='opt';b.textContent=v;
-    b.onclick=()=>{activeCat=activeCat===v?null:v;
-      [...cw.children].forEach(x=>x.classList.remove('active'));
-      if(activeCat!==null)b.classList.add('active');render();};
-    cw.appendChild(b);
+    const cnt=ALL.filter(r=>r.category===v).length;
+    const it=document.createElement('div');it.className='side-item';
+    it.innerHTML=`<span>${v}</span><span class="n">${cnt}</span>`;
+    it.onclick=()=>{activeCat=v;[...cl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
+    cl.appendChild(it);
   });
 }
 fetch('qa.json').then(r=>r.json()).then(d=>{ALL=d;buildFacets();render();});
