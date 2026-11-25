@@ -13,9 +13,14 @@
     --line:#ececec;
     --accent:#4f5dff;
     --accent-soft:#f0f1ff;
-    --green:#1f9e6b;
-    --green-soft:#eafaf3;
     --notice-mark:#fff1a6;
+    /* 区分タグ用の濃淡トーン(同一色相・明度違いの6段階) */
+    --tone1-bg:hsl(233 55% 95%); --tone1-text:hsl(233 55% 32%);
+    --tone2-bg:hsl(233 55% 90%); --tone2-text:hsl(233 55% 28%);
+    --tone3-bg:hsl(233 50% 83%); --tone3-text:hsl(233 55% 24%);
+    --tone4-bg:hsl(233 45% 74%); --tone4-text:hsl(233 60% 18%);
+    --tone5-bg:hsl(233 40% 63%); --tone5-text:#ffffff;
+    --tone6-bg:hsl(233 45% 50%); --tone6-text:#ffffff;
   }
   html[data-theme="dark"]{
     --bg:#121214;
@@ -25,9 +30,13 @@
     --line:#2b2b30;
     --accent:#8b93ff;
     --accent-soft:#232345;
-    --green:#4fd39a;
-    --green-soft:#1b3a2d;
     --notice-mark:#5c4e14;
+    --tone1-bg:hsl(233 30% 22%); --tone1-text:hsl(233 70% 85%);
+    --tone2-bg:hsl(233 32% 27%); --tone2-text:hsl(233 75% 88%);
+    --tone3-bg:hsl(233 34% 33%); --tone3-text:hsl(233 80% 91%);
+    --tone4-bg:hsl(233 38% 40%); --tone4-text:#f3f4ff;
+    --tone5-bg:hsl(233 45% 50%); --tone5-text:#ffffff;
+    --tone6-bg:hsl(233 55% 62%); --tone6-text:#0d0d12;
   }
   @media (prefers-color-scheme: dark){
     html:not([data-theme="light"]){
@@ -38,9 +47,13 @@
       --line:#2b2b30;
       --accent:#8b93ff;
       --accent-soft:#232345;
-      --green:#4fd39a;
-      --green-soft:#1b3a2d;
       --notice-mark:#5c4e14;
+      --tone1-bg:hsl(233 30% 22%); --tone1-text:hsl(233 70% 85%);
+      --tone2-bg:hsl(233 32% 27%); --tone2-text:hsl(233 75% 88%);
+      --tone3-bg:hsl(233 34% 33%); --tone3-text:hsl(233 80% 91%);
+      --tone4-bg:hsl(233 38% 40%); --tone4-text:#f3f4ff;
+      --tone5-bg:hsl(233 45% 50%); --tone5-text:#ffffff;
+      --tone6-bg:hsl(233 55% 62%); --tone6-text:#0d0d12;
     }
   }
   *{box-sizing:border-box;}
@@ -92,6 +105,16 @@
   .side-item:hover{background:var(--line);}
   .side-item.active{background:var(--accent);color:#fff;}
   .side-item .n{font-size:.7rem;color:var(--ink-soft);}
+  .dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    margin-right:.45rem;vertical-align:1px;
+  }
+  .dot.tone-1{background:var(--tone1-bg);border:1px solid var(--line);}
+  .dot.tone-2{background:var(--tone2-bg);border:1px solid var(--line);}
+  .dot.tone-3{background:var(--tone3-bg);}
+  .dot.tone-4{background:var(--tone4-bg);}
+  .dot.tone-5{background:var(--tone5-bg);}
+  .dot.tone-6{background:var(--tone6-bg);}
   .side-item.active .n{color:#e4e6ff;}
 
   /* ===== メイン ===== */
@@ -120,8 +143,15 @@
   .entry{padding:1.3rem 0;border-bottom:1px solid var(--line);}
   .entry .meta{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;flex-wrap:wrap;}
   .chip{font-size:.68rem;font-weight:600;padding:.12rem .5rem;border-radius:5px;}
-  .chip.sono{background:var(--accent-soft);color:var(--accent);}
-  .chip.cat{background:var(--green-soft);color:var(--green);}
+  /* 号数は分類情報ではないため、色を持たせずニュートラルに */
+  .chip.sono{background:var(--line);color:var(--ink-soft);}
+  /* 区分は同一色相・濃淡6段階のトーンで表現 */
+  .chip.cat.tone-1{background:var(--tone1-bg);color:var(--tone1-text);}
+  .chip.cat.tone-2{background:var(--tone2-bg);color:var(--tone2-text);}
+  .chip.cat.tone-3{background:var(--tone3-bg);color:var(--tone3-text);}
+  .chip.cat.tone-4{background:var(--tone4-bg);color:var(--tone4-text);}
+  .chip.cat.tone-5{background:var(--tone5-bg);color:var(--tone5-text);}
+  .chip.cat.tone-6{background:var(--tone6-bg);color:var(--tone6-text);}
   .entry .topic{font-size:.76rem;color:var(--ink-soft);}
   .entry .q{font-size:.98rem;font-weight:600;margin:0 0 .5rem;}
   .entry .a{font-size:.92rem;color:var(--ink);margin:0;}
@@ -206,6 +236,25 @@ function hl(text,terms){
   return t;
 }
 const ZEN_TO_HAN=str=>str.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+
+// 区分名 → トーン番号(1〜6)への固定割り当て。
+// 新しい区分が増えた場合は、ここに追記するか、末尾のフォールバックでハッシュ割り当てされる。
+const CATEGORY_TONE={
+  "医科":1,
+  "歯科":2,
+  "調剤":3,
+  "訪問看護":4,
+  "DPC":5,
+  "看護職員処遇改善・ベースアップ評価料":6,
+};
+function toneFor(category){
+  if(CATEGORY_TONE[category]) return CATEGORY_TONE[category];
+  // 未登録の区分名は、文字列から安定したハッシュ値を作って1〜6に割り当てる
+  let h=0;
+  for(let i=0;i<category.length;i++){ h=(h*31+category.charCodeAt(i))>>>0; }
+  return (h%6)+1;
+}
+
 function render(){
   const qv=document.getElementById('q').value.trim();
   const terms=qv.split(/\s+/).filter(Boolean);
@@ -223,7 +272,7 @@ function render(){
     <div class="entry">
       <div class="meta">
         <span class="chip sono">その${r.sono}</span>
-        <span class="chip cat">${esc(r.category)}</span>
+        <span class="chip cat tone-${toneFor(r.category)}">${esc(r.category)}</span>
         ${r.topic?`<span class="topic">${esc(r.topic)}</span>`:''}
       </div>
       <p class="q">${hl(r.question,terms)}</p>
@@ -259,7 +308,7 @@ function buildFacets(){
   cats.forEach(v=>{
     const cnt=ALL.filter(r=>r.category===v).length;
     const it=document.createElement('div');it.className='side-item';
-    it.innerHTML=`<span>${v}</span><span class="n">${cnt}</span>`;
+    it.innerHTML=`<span><span class="dot tone-${toneFor(v)}"></span>${v}</span><span class="n">${cnt}</span>`;
     it.onclick=()=>{activeCat=v;[...cl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
     cl.appendChild(it);
   });
