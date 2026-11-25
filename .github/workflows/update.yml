@@ -38,6 +38,9 @@ jobs:
   deploy-pages:
     needs: update-data
     runs-on: ubuntu-latest
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
