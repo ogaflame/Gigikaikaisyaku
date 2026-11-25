@@ -3,236 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>疑義解釈資料 横断検索 | 令和８年度診療報酬改定</title>
+<title>案E: シンプルミニマル | 疑義解釈資料データベース</title>
 <style>
   :root{
-    --bg:#f4f5f7;
-    --panel:#ffffff;
-    --sidebar:#151b26;
-    --sidebar-2:#1e2733;
-    --ink:#1a1f2b;
-    --ink-soft:#5a6270;
-    --line:#e3e6eb;
-    --accent:#2f6fed;
-    --accent-soft:#eaf1fe;
+    --bg:#ffffff;
+    --ink:#1c1c1e;
+    --ink-soft:#767680;
+    --line:#ececec;
+    --accent:#4f5dff;
+    --accent-soft:#f0f1ff;
+    --green:#1f9e6b;
+    --green-soft:#eafaf3;
+    --notice-mark:#fff1a6;
+    --card-bg:transparent;
+  }
+  html[data-theme="dark"]{
+    --bg:#121214;
+    --ink:#eceef0;
+    --ink-soft:#9a9aa2;
+    --line:#2b2b30;
+    --accent:#8b93ff;
+    --accent-soft:#232345;
+    --green:#4fd39a;
+    --green-soft:#1b3a2d;
+    --notice-mark:#5c4e14;
+    --card-bg:transparent;
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme="light"]){
+      --bg:#121214;
+      --ink:#eceef0;
+      --ink-soft:#9a9aa2;
+      --line:#2b2b30;
+      --accent:#8b93ff;
+      --accent-soft:#232345;
+      --green:#4fd39a;
+      --green-soft:#1b3a2d;
+      --notice-mark:#5c4e14;
+    }
   }
   *{box-sizing:border-box;}
+  html{background:var(--bg);}
   body{
     margin:0;background:var(--bg);color:var(--ink);
-    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
-    line-height:1.6;
-    font-size:14px;
+    font-family:-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
+    line-height:1.65;
+    transition:background .15s ease,color .15s ease;
   }
-  .layout{display:flex;min-height:100vh;}
-  .sidebar{
-    width:240px;flex-shrink:0;
-    background:var(--sidebar);
-    color:#c7cedb;
-    padding:1.4rem 1rem;
-  }
-  .sidebar .brand{
-    color:#fff;font-size:.92rem;font-weight:700;margin:0 0 .2rem;
-  }
-  .sidebar .brand-sub{
-    font-size:.68rem;color:#8b93a3;margin:0 0 1.6rem;
-  }
-  .side-section{margin-bottom:1.5rem;}
-  .side-section .h{
-    font-size:.66rem;letter-spacing:.08em;color:#7b8394;
-    margin:0 0 .5rem;text-transform:uppercase;
-  }
-  .side-item{
-    display:flex;justify-content:space-between;
-    padding:.4rem .55rem;
-    border-radius:6px;
-    font-size:.8rem;
-    cursor:pointer;
-    color:#c7cedb;
-  }
-  .side-item:hover{background:var(--sidebar-2);}
-  .side-item.active{background:var(--accent);color:#fff;}
-  .side-item .n{color:#8b93a3;font-size:.72rem;}
-  .side-item.active .n{color:#dce6ff;}
-  .content{flex:1;padding:1.6rem 2.2rem 3rem;max-width:900px;}
-  .topbar{
-    display:flex;align-items:center;gap:.7rem;margin-bottom:1rem;
-  }
-  .topbar input{
-    flex:1;
-    padding:.6rem .9rem;
+  .wrap{max-width:720px;margin:0 auto;padding:3rem 1.4rem 5rem;}
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;}
+  .eyebrow{font-size:.72rem;color:var(--ink-soft);letter-spacing:.08em;margin:0 0 .5rem;}
+  h1{font-size:1.6rem;font-weight:600;margin:0 0 1.6rem;letter-spacing:-.01em;}
+  .theme-toggle{
+    flex-shrink:0;
+    font-size:.72rem;font-weight:600;
+    color:var(--ink-soft);
+    background:transparent;
     border:1px solid var(--line);
-    border-radius:8px;
-    font-size:.9rem;
-    background:#fff;
+    border-radius:999px;
+    padding:.4rem .9rem;
+    cursor:pointer;
     font-family:inherit;
   }
-  .topbar input:focus{outline:2px solid var(--accent);outline-offset:1px;}
-  .disclaimer{
-    display:flex;
-    gap:.6rem;
-    align-items:flex-start;
-    background:#fff6e5;
-    border:1px solid #f0d999;
-    color:#6b5410;
-    border-radius:8px;
-    padding:.7rem .9rem;
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .notice{
+    font-size:.76rem;color:var(--ink-soft);
+    border-left:2px solid var(--line);
+    padding-left:.9rem;
+    margin-bottom:2rem;
+    line-height:1.7;
+  }
+  .search-wrap{position:relative;margin-bottom:1.2rem;}
+  .search-wrap input[type=text]{
+    width:100%;
+    border:none;
+    border-bottom:2px solid var(--ink);
+    padding:.7rem 0;
+    font-size:1.15rem;
+    font-family:inherit;
+    background:transparent;
+  }
+  .search-wrap input[type=text]:focus{outline:none;border-color:var(--accent);}
+  .search-wrap input[type=text]::placeholder{color:#c6c6cc;}
+  .filters{display:flex;gap:1.8rem;margin:1.3rem 0 1.6rem;flex-wrap:wrap;}
+  .filter-col .label{font-size:.68rem;color:var(--ink-soft);letter-spacing:.06em;margin:0 0 .5rem;}
+  .filter-col .opts{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .opt{
     font-size:.78rem;
-    line-height:1.6;
-    margin-bottom:1rem;
-  }
-  .disclaimer .mark{
-    font-weight:700;
-    flex-shrink:0;
-  }
-  .stats{
-    display:flex;gap:.8rem;margin-bottom:1.2rem;
-  }
-  .stat{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:.6rem .9rem;
-    font-size:.78rem;
+    padding:.25rem .1rem;
     color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
   }
-  .stat b{color:var(--ink);font-size:1rem;display:block;}
-  table.results-table{
-    width:100%;border-collapse:collapse;background:var(--panel);
-    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  .opt + .opt{margin-left:.6rem;}
+  .opt.active{color:var(--accent);border-color:var(--accent);font-weight:600;}
+  .status{font-size:.74rem;color:var(--ink-soft);margin-bottom:1.6rem;padding-bottom:.8rem;border-bottom:1px solid var(--line);}
+  .entry{padding:1.4rem 0;border-bottom:1px solid var(--line);}
+  .entry .meta{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;}
+  .chip{font-size:.68rem;font-weight:600;padding:.12rem .5rem;border-radius:5px;}
+  .chip.sono{background:var(--accent-soft);color:var(--accent);}
+  .chip.cat{background:var(--green-soft);color:var(--green);}
+  .entry .topic{font-size:.76rem;color:var(--ink-soft);}
+  .entry .q{font-size:.98rem;font-weight:600;margin:0 0 .5rem;}
+  .entry .a{font-size:.92rem;color:#3a3a3e;margin:0;}
+  .entry .a::before{content:"— ";color:var(--ink-soft);}
+  .entry a.src{
+    display:inline-block;margin-top:.6rem;font-size:.76rem;color:var(--accent);text-decoration:none;
   }
-  .row{
-    border-bottom:1px solid var(--line);
-    padding:.9rem 1rem;
-    display:block;
-  }
-  .row:last-child{border-bottom:none;}
-  .row-head{
-    display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;
-  }
-  .badge{
-    font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:5px;
-  }
-  .badge.sono{background:#eef0f4;color:#454d5c;}
-  .badge.cat{background:var(--accent-soft);color:#1d4fb0;}
-  .row-head .topic{font-size:.75rem;color:var(--ink-soft);}
-  .q{font-weight:700;margin:.2rem 0 .35rem;}
-  .a{margin:0;color:var(--ink-soft);}
-  .a b{color:var(--ink);font-weight:400;}
-  .src{
-    display:inline-block;margin-top:.5rem;font-size:.72rem;color:var(--accent);
-    text-decoration:none;
-  }
-  mark{background:#ffe08a;padding:0 .1em;border-radius:2px;}
-  .empty{padding:3rem;text-align:center;color:var(--ink-soft);}
-
-  /* ========== スマートフォン向けレイアウト ========== */
-  @media (max-width: 768px){
-    body{font-size:15px;}
-
-    .layout{flex-direction:column;min-height:auto;}
-
-    /* サイドバーを上部の横スクロールバーに変える */
-    .sidebar{
-      width:100%;
-      padding:1rem .9rem;
-      position:sticky;
-      top:0;
-      z-index:10;
-      box-shadow:0 2px 8px rgba(0,0,0,.25);
-    }
-    .sidebar .brand-sub{margin-bottom:.9rem;}
-    .side-section{margin-bottom:.9rem;}
-    .side-section .h{margin-bottom:.4rem;}
-
-    /* 号数・区分のリストを縦積みから横スクロールのチップ列に */
-    .side-section > div{
-      display:flex;
-      gap:.4rem;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-      padding-bottom:.15rem;
-    }
-    .side-item{
-      flex-shrink:0;
-      display:flex;
-      gap:.3rem;
-      white-space:nowrap;
-      padding:.45rem .75rem;
-      border:1px solid #2b3648;
-    }
-    .side-item .n{
-      background:rgba(255,255,255,.12);
-      padding:0 .35rem;
-      border-radius:999px;
-    }
-
-    .content{
-      padding:1rem .9rem 2.5rem;
-      max-width:100%;
-    }
-
-    .disclaimer{
-      font-size:.72rem;
-      padding:.6rem .7rem;
-      flex-direction:column;
-      gap:.2rem;
-    }
-
-    .topbar input{
-      font-size:16px; /* iOSでの自動ズームを防ぐ */
-      padding:.7rem .85rem;
-    }
-
-    .stats{gap:.5rem;}
-    .stat{padding:.5rem .7rem;font-size:.72rem;flex:1;}
-    .stat b{font-size:.95rem;}
-
-    .row{padding:.8rem .9rem;}
-    .row-head{gap:.35rem;}
-    .badge{font-size:.66rem;padding:.12rem .4rem;}
-    .row-head .topic{
-      width:100%;
-      margin-top:.1rem;
-      font-size:.72rem;
-    }
-    .q{font-size:.92rem;line-height:1.5;}
-    .a{font-size:.88rem;}
-    .src{font-size:.75rem;padding:.2rem 0;}
-  }
+  .entry a.src:hover{text-decoration:underline;}
+  mark{background:var(--notice-mark);color:var(--ink);padding:0 .1em;}
+  .empty{padding:4rem 0;text-align:center;color:var(--ink-soft);}
 </style>
 </head>
 <body>
-<div class="layout">
-  <div class="sidebar">
-    <p class="brand">疑義解釈資料データベース</p>
-    <p class="brand-sub">令和８年度診療報酬改定</p>
-    <div class="side-section">
-      <p class="h">疑義解釈資料の送付について</p>
-      <div id="sonoList"></div>
+<div class="wrap">
+  <div class="top-row">
+    <div>
+      <p class="eyebrow">令和８年度診療報酬改定</p>
+      <h1>疑義解釈資料データベース</h1>
     </div>
-    <div class="side-section">
-      <p class="h">区分</p>
-      <div id="catList"></div>
+    <button class="theme-toggle" id="themeToggle" type="button">ダークモード</button>
+  </div>
+
+  <p class="notice">
+    社内向けの非公式な検索補助ツールです。内容は自動処理により構造化しているため、誤りを含む可能性があります。実務上の判断は、必ずリンク先の原文PDFをご確認ください。
+  </p>
+
+  <div class="search-wrap">
+    <input type="text" id="q" placeholder="キーワードで検索">
+  </div>
+
+  <div class="filters">
+    <div class="filter-col">
+      <p class="label">疑義解釈資料の送付について</p>
+      <div class="opts" id="sonoOpts"></div>
+    </div>
+    <div class="filter-col">
+      <p class="label">区分</p>
+      <div class="opts" id="catOpts"></div>
     </div>
   </div>
-  <div class="content">
-    <div class="disclaimer">
-      <span class="mark">⚠ ご利用にあたって</span>
-      <span>本サイトは社内の検索補助を目的とした非公式ツールです。厚生労働省の公式発表ではありません。内容は自動処理により抽出・分割しているため、誤りや抽出漏れが含まれる可能性があります。算定・請求など実務上の判断は、必ず「原文PDFを開く」リンクから一次資料(厚労省の事務連絡)をご確認のうえ行ってください。</span>
-    </div>
-    <div class="topbar">
-      <input type="text" id="q" placeholder="問・答・見出しをキーワード検索">
-    </div>
-    <div class="stats">
-      <div class="stat"><b id="statCount">-</b>ヒット件数</div>
-      <div class="stat"><b id="statTotal">-</b>収録件数(全号)</div>
-    </div>
-    <div class="results-table" id="results"></div>
-    <p style="margin-top:1.5rem;font-size:.72rem;color:var(--ink-soft);">
-      データ出典: 厚生労働省「令和８年度診療報酬改定について」掲載の疑義解釈資料(事務連絡)。
-      本サイトは非公式の検索補助ツールです。正確な原文は必ず一次資料(厚労省PDF)を確認してください。
-    </p>
-  </div>
+
+  <p class="status" id="status"></p>
+  <div id="results"></div>
 </div>
 
 <script>
@@ -247,6 +160,7 @@ function hl(text,terms){
   });
   return t;
 }
+const ZEN_TO_HAN=str=>str.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
 function render(){
   const qv=document.getElementById('q').value.trim();
   const terms=qv.split(/\s+/).filter(Boolean);
@@ -257,55 +171,68 @@ function render(){
     const hay=(r.topic||'')+' '+r.question+' '+r.answer;
     return terms.every(t=>hay.toLowerCase().includes(t.toLowerCase()));
   });
-  document.getElementById('statCount').textContent=filtered.length;
-  document.getElementById('statTotal').textContent=ALL.length;
+  document.getElementById('status').textContent=`${filtered.length} 件 / 全 ${ALL.length} 件`;
   const c=document.getElementById('results');
-  if(!filtered.length){c.innerHTML='<div class="empty">条件に一致するデータがありません。</div>';return;}
+  if(!filtered.length){c.innerHTML='<div class="empty">該当する結果がありません。</div>';return;}
   c.innerHTML=filtered.map(r=>`
-    <div class="row">
-      <div class="row-head">
-        <span class="badge sono">その${r.sono}</span>
-        <span class="badge cat">${esc(r.category)}</span>
-        <span class="topic">${r.topic?'【'+esc(r.topic)+'】':''}</span>
+    <div class="entry">
+      <div class="meta">
+        <span class="chip sono">その${r.sono}</span>
+        <span class="chip cat">${esc(r.category)}</span>
+        ${r.topic?`<span class="topic">${esc(r.topic)}</span>`:''}
       </div>
-      <p class="q">問${r.question_no}. ${hl(r.question,terms)}</p>
-      <p class="a"><b>答</b> ${hl(r.answer,terms)}</p>
-      ${r.source_url?`<a class="src" href="${r.source_url}${r.page?('#page='+r.page):''}" target="_blank">原文PDFを開く ↗</a>`:''}
+      <p class="q">${hl(r.question,terms)}</p>
+      <p class="a">${hl(r.answer,terms)}</p>
+      ${r.source_url?`<a class="src" href="${r.source_url}${r.page?('#page='+r.page):''}" target="_blank">原文PDFを開く</a>`:''}
     </div>
   `).join('');
 }
 function buildFacets(){
-  const ZEN_TO_HAN=str=>str.replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
   const sonos=[...new Set(ALL.map(r=>r.sono))].sort((a,b)=>parseInt(ZEN_TO_HAN(a),10)-parseInt(ZEN_TO_HAN(b),10));
   const cats=[...new Set(ALL.map(r=>r.category))];
-  const sl=document.getElementById('sonoList');
-  const allItem=document.createElement('div');
-  allItem.className='side-item active';
-  allItem.innerHTML=`<span>すべて</span><span class="n">${ALL.length}</span>`;
-  allItem.onclick=()=>{activeSono=null;[...sl.children].forEach(x=>x.classList.remove('active'));allItem.classList.add('active');render();};
-  sl.appendChild(allItem);
+  const sw=document.getElementById('sonoOpts');
   sonos.forEach(v=>{
-    const cnt=ALL.filter(r=>r.sono===v).length;
-    const it=document.createElement('div');it.className='side-item';
-    it.innerHTML=`<span>その${v}</span><span class="n">${cnt}</span>`;
-    it.onclick=()=>{activeSono=v;[...sl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
-    sl.appendChild(it);
+    const b=document.createElement('span');b.className='opt';b.textContent=`その${v}`;
+    b.onclick=()=>{activeSono=activeSono===v?null:v;
+      [...sw.children].forEach(x=>x.classList.remove('active'));
+      if(activeSono!==null)b.classList.add('active');render();};
+    sw.appendChild(b);
   });
-  const cl=document.getElementById('catList');
-  const allCat=document.createElement('div');
-  allCat.className='side-item active';allCat.innerHTML=`<span>すべて</span><span class="n"></span>`;
-  allCat.onclick=()=>{activeCat=null;[...cl.children].forEach(x=>x.classList.remove('active'));allCat.classList.add('active');render();};
-  cl.appendChild(allCat);
+  const cw=document.getElementById('catOpts');
   cats.forEach(v=>{
-    const cnt=ALL.filter(r=>r.category===v).length;
-    const it=document.createElement('div');it.className='side-item';
-    it.innerHTML=`<span>${v}</span><span class="n">${cnt}</span>`;
-    it.onclick=()=>{activeCat=v;[...cl.children].forEach(x=>x.classList.remove('active'));it.classList.add('active');render();};
-    cl.appendChild(it);
+    const b=document.createElement('span');b.className='opt';b.textContent=v;
+    b.onclick=()=>{activeCat=activeCat===v?null:v;
+      [...cw.children].forEach(x=>x.classList.remove('active'));
+      if(activeCat!==null)b.classList.add('active');render();};
+    cw.appendChild(b);
   });
 }
 fetch('qa.json').then(r=>r.json()).then(d=>{ALL=d;buildFacets();render();});
 document.getElementById('q').addEventListener('input',render);
+
+// ダークモード切り替え(手動指定はlocalStorageに保存。未指定時はOS設定に追従)
+const themeBtn=document.getElementById('themeToggle');
+function systemPrefersDark(){
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function currentIsDark(){
+  const saved=localStorage.getItem('gikai_theme');
+  if(saved==='dark') return true;
+  if(saved==='light') return false;
+  return systemPrefersDark();
+}
+function applyTheme(){
+  const saved=localStorage.getItem('gikai_theme');
+  if(saved==='dark'){document.documentElement.setAttribute('data-theme','dark');}
+  else if(saved==='light'){document.documentElement.setAttribute('data-theme','light');}
+  else{document.documentElement.removeAttribute('data-theme');}
+  themeBtn.textContent=currentIsDark()?'ライトモード':'ダークモード';
+}
+themeBtn.addEventListener('click',()=>{
+  localStorage.setItem('gikai_theme', currentIsDark()?'light':'dark');
+  applyTheme();
+});
+try{ applyTheme(); }catch(e){ themeBtn.textContent='ダークモード'; }
 </script>
 </body>
 </html>
