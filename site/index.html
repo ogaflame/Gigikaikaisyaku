@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light dark">
 <title>疑義解釈資料データベース | 令和８年度診療報酬改定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* Material 3 ベースラインのカラーロール */
   :root{
@@ -23,7 +26,7 @@
     --t4:#b69df8; --on-t4:#21005d;
     --t5:#6750a4; --on-t5:#ffffff;
     --t6:#4f378b; --on-t6:#ffffff;
-    --font:"Google Sans","Roboto","Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+    --font:"Nunito","Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
   }
   html[data-theme="dark"]{
     --primary:#d0bcff; --on-primary:#381e72;
@@ -265,7 +268,7 @@ function render(){
   c.innerHTML=filtered.map(r=>`
     <article class="card">
       <div class="meta">
-        <span class="chip sono">その${esc(r.sono)}</span>
+        <span class="chip sono">その${esc(ZEN_TO_HAN(r.sono))}</span>
         <span class="chip cat t${toneFor(r.category)}">${esc(r.category)}</span>
         ${r.topic?`<span class="topic">${esc(r.topic)}</span>`:''}
       </div>
@@ -287,7 +290,7 @@ function buildFacets(){
   const cats=[...new Set(ALL.map(r=>r.category))];
   const sl=document.getElementById('sonoList'), cl=document.getElementById('catList');
   navItem(sl,'すべて',ALL.length,null,v=>activeSono=v);
-  sonos.forEach(v=>navItem(sl,`その${v}`,ALL.filter(r=>r.sono===v).length,v,x=>activeSono=x));
+  sonos.forEach(v=>navItem(sl,`その${ZEN_TO_HAN(v)}`,ALL.filter(r=>r.sono===v).length,v,x=>activeSono=x));
   navItem(cl,'すべて','',null,v=>activeCat=v);
   cats.forEach(v=>navItem(cl,v,ALL.filter(r=>r.category===v).length,v,x=>activeCat=x,toneFor(v)));
 }
